@@ -2,7 +2,7 @@ package king.greg.aoc2022;
 
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class Day01 {
@@ -26,12 +26,7 @@ public class Day01 {
   }
 
   long topThreeCalories() {
-    Collections.sort(elves);
-    long value = 0;
-    for (var i = 1; i <4 ; i++) {
-      value += elves.get(elves.size() - i);
-    }
-    return value;
+    return elves.stream().sorted(Comparator.reverseOrder()).mapToLong(v -> v).limit(3).sum();
   }
 
 }
