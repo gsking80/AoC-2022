@@ -4,7 +4,8 @@ import java.util.HashMap;
 
 public class Day06 {
 
-  private Day06(){}
+  private Day06() {
+  }
 
   public static int marker(final String input, final int distinct) {
     final var lastSeen = new HashMap<Character, Integer>();
@@ -25,5 +26,4 @@ public class Day06 {
 
     return -1;
   }
-
 }

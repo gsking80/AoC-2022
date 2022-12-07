@@ -45,5 +45,4 @@ public class Day03Test {
     final Day03 day03 = new Day03(lines);
     Assertions.assertThat(day03.badgePriorities()).isEqualTo(2552);
   }
-
 }

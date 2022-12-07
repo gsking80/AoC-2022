@@ -28,5 +28,4 @@ public class Day01 {
   long topThreeCalories() {
     return elves.stream().sorted(Comparator.reverseOrder()).mapToLong(v -> v).limit(3).sum();
   }
-
 }

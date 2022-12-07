@@ -45,5 +45,4 @@ public class Day02Test {
     final Day02 day02 = new Day02(lines);
     Assertions.assertThat(day02.totalDecodedScore()).isEqualTo(15508);
   }
-
 }

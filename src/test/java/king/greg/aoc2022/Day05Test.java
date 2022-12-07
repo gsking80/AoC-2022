@@ -45,5 +45,4 @@ public class Day05Test {
     final Day05 day05 = new Day05(lines);
     Assertions.assertThat(day05.topCrates9001()).isEqualTo("BNTZFPMMW");
   }
-
 }

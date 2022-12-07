@@ -27,5 +27,4 @@ public class Day01Test {
     final Day01 day01 = new Day01(lines);
     Assertions.assertThat(day01.topThreeCalories()).isEqualTo(203203);
   }
-
 }

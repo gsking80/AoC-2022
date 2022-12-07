@@ -19,15 +19,16 @@ public class Day05 {
       if (searching && currentLine.isBlank()) {
         searching = false;
         String[] countStrings = lines.get(i - 1).split("\s+");
-        buildCrates(lines.subList(0, i-1), Integer.parseInt(countStrings[countStrings.length - 1]));
-      } else if (!searching){
+        buildCrates(lines.subList(0, i - 1),
+            Integer.parseInt(countStrings[countStrings.length - 1]));
+      } else if (!searching) {
         instructions.add(currentLine);
       }
     }
   }
 
   private void buildCrates(List<String> levels, final int stackCount) {
-    for (var i = 0; i < stackCount; i ++) {
+    for (var i = 0; i < stackCount; i++) {
       stacks.add(new ArrayDeque<>());
     }
     for (var level = levels.size() - 1; level >= 0; level--) {
@@ -81,5 +82,4 @@ public class Day05 {
     }
     return result.toString();
   }
-
 }

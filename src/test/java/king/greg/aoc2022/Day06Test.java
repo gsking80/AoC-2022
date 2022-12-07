@@ -18,7 +18,6 @@ public class Day06Test {
     Assertions.assertThat(Day06.marker("nppdvjthqldpwncqszvftbrmjlhg", 4)).isEqualTo(6);
     Assertions.assertThat(Day06.marker("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg", 4)).isEqualTo(10);
     Assertions.assertThat(Day06.marker("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw", 4)).isEqualTo(11);
-
   }
 
   @Test
@@ -30,7 +29,7 @@ public class Day06Test {
   }
 
   @Test
-  public void testSample2()  {
+  public void testSample2() {
     Assertions.assertThat(Day06.marker("mjqjpqmgbljsphdztnvjfqwrcgsmlb", 14)).isEqualTo(19);
     Assertions.assertThat(Day06.marker("bvwbjplbgvbhsrlpgdmjqwftvncz", 14)).isEqualTo(23);
     Assertions.assertThat(Day06.marker("nppdvjthqldpwncqszvftbrmjlhg", 14)).isEqualTo(23);
@@ -45,5 +44,4 @@ public class Day06Test {
             .toURI()));
     Assertions.assertThat(Day06.marker(lines.get(0), 14)).isEqualTo(2301);
   }
-
 }
