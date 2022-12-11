@@ -33,10 +33,10 @@ public class Day11 {
     }
   }
 
-  public long monkeyBusiness(final int rounds, final boolean worryDivisor) {
+  public long monkeyBusiness(final int rounds, final boolean reduceWorry) {
     for (var i = 0; i < rounds; i++) {
       for (final Monkey monkey : monkeys) {
-        monkey.takeTurn(monkeys, worryDivisor);
+        monkey.takeTurn(monkeys, reduceWorry);
       }
     }
 
@@ -66,10 +66,10 @@ public class Day11 {
       this.inspectionCount = 0L;
     }
 
-    public void takeTurn(final List<Monkey> monkeys, final boolean worryDivisor) {
+    public void takeTurn(final List<Monkey> monkeys, final boolean reduceWorry) {
       while (!items.isEmpty()) {
         inspectionCount++;
-        var currentWorry = (adjustWorry(items.removeFirst(), worryDivisor));
+        var currentWorry = (adjustWorry(items.removeFirst(), reduceWorry));
         if (currentWorry % divisor == 0L) {
           monkeys.get(trueDest).catchItem(currentWorry);
         } else {
@@ -78,10 +78,10 @@ public class Day11 {
       }
     }
 
-    private long adjustWorry(final long worryLevel, final boolean worryDivisor) {
+    private long adjustWorry(final long worryLevel, final boolean reduceWorry) {
       long adjustValue = "old".equals(operationValue) ? worryLevel : Long.parseLong(operationValue);
       return ((operationSymbol == '*') ? worryLevel * adjustValue : worryLevel + adjustValue) / (
-          worryDivisor ? 3L : 1L) % lcm;
+          reduceWorry ? 3L : 1L) % lcm;
     }
 
     public void catchItem(final long item) {
