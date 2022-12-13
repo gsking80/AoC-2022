@@ -25,14 +25,15 @@ public class Day09 {
 
   static class Rope {
 
-    final Point[] knots;
-    private final Set<Point> tailLocations;
     private static final Map<String, Point> directions;
 
     static {
       directions = Map.of("U", new Point(0, 1), "D", new Point(0, -1), "L", new Point(-1, 0), "R",
           new Point(1, 0));
     }
+
+    final Point[] knots;
+    private final Set<Point> tailLocations;
 
     public Rope(final int numberOfKnots) {
       knots = new Point[numberOfKnots];

@@ -7,8 +7,8 @@ import java.util.Map;
 
 public class Day07 {
 
-  private final Directory root = new Directory(null);
   private static final long MAX_SIZE = 70000000L;
+  private final Directory root = new Directory(null);
 
   Day07(final List<String> lines) {
     var currentDirectory = root;

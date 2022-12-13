@@ -13,8 +13,8 @@ public class Day13 {
     for (var i = 0; i < input.size(); i += 3) {
       final String left = input.get(i);
       final String right = input.get(i + 1);
-      packetPairs.add(Pair.of(new Packet(left.substring(1, left.lastIndexOf(']'))),
-          new Packet(right.substring(1, right.lastIndexOf(']')))));
+      packetPairs.add(Pair.of(new Packet(left.substring(1, left.length() - 1)),
+          new Packet(right.substring(1, right.length() - 1))));
     }
   }
 
@@ -50,82 +50,66 @@ public class Day13 {
     private final List<Packet> packets;
     private Integer value;
 
+    public Packet() {
+      packets = new ArrayList<>();
+    }
+
+    public Packet(final Integer input) {
+      packets = new ArrayList<>();
+      value = input;
+    }
+
     public Packet(final String input) {
       packets = new ArrayList<>();
-      if (input.indexOf('[') < 0) {
-        final String[] parts = input.split(",");
-        if (parts.length == 1) {
-          value = parts[0].isBlank() ? null : Integer.parseInt(parts[0]);
-        } else {
-          for (String part : parts) {
-            packets.add(new Packet(part));
-          }
-        }
-      } else {
-        var left = 0;
-        var i = 0;
-        while (i < input.length()) {
-          if (input.charAt(i) == '[') {
-            var depth = 1;
-            var offset = -1;
-            for (var j = i + 1; j < input.length(); j++) {
-              if (input.charAt(j) == ']') {
-                depth--;
-              } else if (input.charAt(j) == '[') {
-                depth++;
+      var left = 0;
+      var depth = 0;
+      var right = 0;
+      while (right < input.length()) {
+        switch (input.charAt(right)) {
+          case '[':
+            depth++;
+            break;
+          case ']':
+            depth--;
+            if (depth == 0) {
+              if (right == left + 1) {
+                packets.add(new Packet());
+              } else {
+                packets.add(new Packet(input.substring(left + 1, right)));
               }
-              if (depth == 0) {
-                offset = j;
-                break;
-              }
+              left = right + 2;
+              right = left - 1;
             }
-            packets.add(new Packet(input.substring(i + 1, offset)));
-            i = offset + 2;
-            left = i;
-          } else if (input.charAt(i) == ',') {
-            packets.add(new Packet(input.substring(left, i)));
-            i++;
-            left = i;
-          } else {
-            i++;
-          }
+            break;
+          case ',':
+            if (depth == 0) {
+              packets.add(new Packet(Integer.valueOf(input.substring(left, right))));
+              left = right + 1;
+            }
+            break;
+          default:
         }
-        if (left < input.length()) {
-          packets.add(new Packet(input.substring(left)));
-        }
+        right++;
+      }
+      if (left < input.length()) {
+        packets.add(new Packet(Integer.valueOf(input.substring(left))));
       }
     }
 
     public int compareTo(final Packet comparePacket) {
       if (value != null) {
-        if (comparePacket.value != null) {
-          return value.compareTo(comparePacket.value);
-        }
-        if (comparePacket.packets.isEmpty()) {
-          return 1;
-        }
-        var compare = this.compareTo(comparePacket.packets.get(0));
-        if (compare != 0) {
-          return compare;
-        } else if (comparePacket.packets.size() > 1) {
-          return -1;
-        }
-        return 0;
+        return compareValueToPacket(comparePacket);
+      } else if (comparePacket.value != null) {
+        return -1 * comparePacket.compareValueToPacket(this);
       }
       if (packets.isEmpty()) {
-        if (comparePacket.packets.isEmpty() && comparePacket.value == null) {
+        if (comparePacket.packets.isEmpty()) {
           return 0;
         }
         return -1;
       }
-      if (comparePacket.packets.isEmpty() && comparePacket.value == null) {
+      if (comparePacket.packets.isEmpty()) {
         return 1;
-      }
-      if (comparePacket.value != null) {
-        var compare = packets.get(0).compareTo(comparePacket);
-        if (compare != 0) {
-          return compare;
-        }
       }
       for (var i = 0; i < packets.size(); i++) {
         if (i < comparePacket.packets.size()) {
@@ -143,13 +127,28 @@ public class Day13 {
       return 0;
     }
 
+    private int compareValueToPacket(final Packet comparePacket) {
+      if (comparePacket.value != null) {
+        return value.compareTo(comparePacket.value);
+      }
+      if (comparePacket.packets.isEmpty()) {
+        return 1;
+      }
+      var compare = this.compareValueToPacket(comparePacket.packets.get(0));
+      if (compare != 0) {
+        return compare;
+      } else if (comparePacket.packets.size() > 1) {
+        return -1;
+      }
+      return 0;
+    }
+
     @Override
     public String toString() {
       final var builder = new StringBuilder();
       if (value != null) {
         builder.append(value);
-      }
-      if (!packets.isEmpty()) {
+      } else {
         builder.append(packets);
       }
       return builder.toString();
