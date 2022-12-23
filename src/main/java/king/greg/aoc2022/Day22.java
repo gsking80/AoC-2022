@@ -1,6 +1,7 @@
 package king.greg.aoc2022;
 
 import java.awt.Point;
+import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,8 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public class Day22 {
 
+  public static final char RIGHT = 'R';
+  public static final char LEFT = 'L';
   static final Map<Integer, Point> directionMap;
 
   static {
@@ -19,6 +22,10 @@ public class Day22 {
 
   final Map<Point, Character> map;
   final String path;
+
+  final Map<Pair<Point, Integer>, Pair<Point, Integer>> transferMap;
+
+  final int length;
 
   public Day22(final List<String> input) {
     map = new HashMap<>();
@@ -32,6 +39,8 @@ public class Day22 {
         }
       }
     }
+    transferMap = new HashMap<>();
+    length = (int) Math.sqrt((double) map.size() / 6);
   }
 
   public int getPassword() {
@@ -43,7 +52,7 @@ public class Day22 {
       switch (next) {
         case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' ->
             distance = (distance * 10) + (next - '0');
-        case 'R', 'L' -> {
+        case RIGHT, LEFT -> {
           position = move(position, direction, distance);
           distance = 0;
           direction = turn(direction, next);
@@ -56,7 +65,10 @@ public class Day22 {
     return (1000 * position.y) + (4 * position.x) + direction;
   }
 
-  public int getPassword2(final int edgeLength) {
+  public int getPassword2() {
+
+    zipCube();
+
     var position = getStart();
     var direction = 0;
     var distance = 0;
@@ -65,8 +77,8 @@ public class Day22 {
       switch (next) {
         case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' ->
             distance = (distance * 10) + (next - '0');
-        case 'R', 'L' -> {
-          var result = move3d(position, direction, distance, edgeLength);
+        case RIGHT, LEFT -> {
+          var result = move3d(position, direction, distance, false);
           position = result.getLeft();
           direction = result.getRight();
           distance = 0;
@@ -79,8 +91,92 @@ public class Day22 {
     return (1000 * position.y) + (4 * position.x) + direction;
   }
 
+  private void zipCube() {
+    final var xPanels = map.keySet().stream().mapToInt(p -> p.x).max().orElse(0) / length;
+    final var yPanels = map.keySet().stream().mapToInt(p -> p.y).max().orElse(0) / length;
+
+    final var unknownTransfers = new ArrayDeque<Pair<Point, Integer>>();
+    for (var y = 0; y < yPanels; y++) {
+      for (var x = 0; x < xPanels; x++) {
+        var upperLeft = new Point((x * length) + 1, (y * length) + 1);
+        final var panel = new Point(x, y);
+        if (map.get(upperLeft) == null) {
+          continue;
+        }
+        for (var direction = 0; direction < 4; direction++) {
+          var step = directionMap.get(direction);
+          if (null == map.get(
+              new Point(upperLeft.x + (length * step.x), upperLeft.y + (length * step.y)))) {
+            unknownTransfers.addLast(Pair.of(panel, direction));
+          }
+        }
+      }
+    }
+    while (!unknownTransfers.isEmpty()) {
+      var currentEdge = unknownTransfers.removeFirst();
+      if (transferMap.get(currentEdge) == null && !canZip(currentEdge)) {
+        unknownTransfers.addLast(currentEdge);
+      }
+    }
+  }
+
+  private boolean canZip(final Pair<Point, Integer> currentEdge) {
+    var panel = currentEdge.getLeft();
+    var direction = currentEdge.getRight();
+    var minX = (panel.x * length) + 1;
+    var maxX = minX + length - 1;
+    var minY = (panel.y * length) + 1;
+    var maxY = minY + length - 1;
+    Pair<Point, Integer> test;
+    switch (direction) {
+      case 0 -> {
+        test = testCorner(new Point(maxX, minY), 0, true);
+        test = test != null ? test : testCorner(new Point(maxX, maxY), 0, false);
+      }
+      case 1 -> {
+        test = testCorner(new Point(maxX, maxY), 1, true);
+        test = test != null ? test : testCorner(new Point(minX, maxY), 1, false);
+      }
+      case 2 -> {
+        test = testCorner(new Point(minX, maxY), 2, true);
+        test = test != null ? test : testCorner(new Point(minX, minY), 2, false);
+      }
+      case 3 -> {
+        test = testCorner(new Point(minX, minY), 3, true);
+        test = test != null ? test : testCorner(new Point(maxX, minY), 3, false);
+      }
+      default -> throw new UnsupportedOperationException();
+    }
+    if (test == null) {
+      return false;
+    }
+    var nextPanel = getPanel(test.getLeft());
+    transferMap.put(Pair.of(panel, direction), Pair.of(nextPanel, (test.getRight() + 2) % 4));
+    transferMap.put(Pair.of(nextPanel, test.getRight()), Pair.of(panel, (direction + 2) % 4));
+    return true;
+  }
+
+  private Point getPanel(final Point point) {
+    return new Point((point.x - 1) / length, (point.y - 1) / length);
+  }
+
+  private Pair<Point, Integer> testCorner(final Point position, final int direction,
+      final boolean leftFirst) {
+    var nextStep = move3d(position, turn(direction, leftFirst ? LEFT : RIGHT), 1, true);
+    if (nextStep == null) {
+      return null;
+    }
+    nextStep = move3d(nextStep.getLeft(), turn(nextStep.getRight(), leftFirst ? RIGHT : LEFT), 1,
+        true);
+    if (nextStep == null) {
+      return null;
+    }
+    return Pair.of(nextStep.getLeft(), turn(nextStep.getRight(), leftFirst ? RIGHT : LEFT));
+  }
+
+
   private Pair<Point, Integer> move3d(final Point position, final int direction, final int distance,
-      final int edgeLength) {
+      final boolean ignoreWalls) {
     var nextPoint = new Point(position);
     var currentDirection = direction;
     var directionShift = directionMap.get(currentDirection);
@@ -92,10 +188,18 @@ public class Day22 {
           nextPoint = testPoint;
           break;
         case '#':
-          return Pair.of(nextPoint, currentDirection);
+          if (ignoreWalls) {
+            nextPoint = testPoint;
+            break;
+          } else {
+            return Pair.of(nextPoint, currentDirection);
+          }
         case ' ':
           try {
-            var wrapped = attemptToWrap3d(nextPoint, currentDirection, edgeLength);
+            var wrapped = attemptToWrap3d(nextPoint, currentDirection, ignoreWalls);
+            if (wrapped == null) {
+              return null;
+            }
             nextPoint = wrapped.getLeft();
             currentDirection = wrapped.getRight();
             directionShift = directionMap.get(currentDirection);
@@ -108,6 +212,63 @@ public class Day22 {
       }
     }
     return Pair.of(nextPoint, currentDirection);
+  }
+
+  private Pair<Point, Integer> attemptToWrap3d(final Point currentPosition,
+      final int currentDirection, final boolean ignoreWalls) {
+    final var panel = getPanel(currentPosition);
+    final var nextPanel = transferMap.get(Pair.of(panel, currentDirection));
+    if (nextPanel == null) {
+      return null;
+    }
+    int baseX;
+    int baseY;
+    int[] offsetMod;
+    int offset = switch (currentDirection) {
+      case 0 -> ((currentPosition.y - 1) % length) + 1;
+      case 1 -> length - ((currentPosition.x - 1) % length);
+      case 2 -> length - ((currentPosition.y - 1) % length);
+      case 3 -> ((currentPosition.x - 1) % length) + 1;
+      default -> throw new UnsupportedOperationException();
+    };
+    switch (nextPanel.getRight()) {
+      case 0 -> {
+        baseX = (nextPanel.getLeft().x * length) + 1;
+        baseY = (nextPanel.getLeft().y * length);
+        offsetMod = new int[]{0, 1};
+      }
+      case 1 -> {
+        baseX = (nextPanel.getLeft().x * length) + length + 1;
+        baseY = (nextPanel.getLeft().y * length) + 1;
+        offsetMod = new int[]{-1, 0};
+      }
+      case 2 -> {
+        baseX = (nextPanel.getLeft().x * length) + length;
+        baseY = (nextPanel.getLeft().y * length) + length + 1;
+        offsetMod = new int[]{0, -1};
+      }
+      case 3 -> {
+        baseX = (nextPanel.getLeft().x * length);
+        baseY = (nextPanel.getLeft().y * length) + length;
+        offsetMod = new int[]{1, 0};
+      }
+      default -> throw new UnsupportedOperationException();
+    }
+    var nextPoint = new Point(baseX + (offset * offsetMod[0]), baseY + (offset * offsetMod[1]));
+
+    var character = map.get(nextPoint);
+    if (character == null) {
+      return null;
+    }
+    if (character == '.') {
+      return Pair.of(nextPoint, nextPanel.getRight());
+    } else if (character == '#') {
+      if (ignoreWalls) {
+        return Pair.of(nextPoint, nextPanel.getRight());
+      }
+      throw new IllegalArgumentException();
+    }
+    return null;
   }
 
   private Point move(final Point position, final int direction, final int distance) {
@@ -136,88 +297,6 @@ public class Day22 {
     return nextPoint;
   }
 
-  private Pair<Point, Integer> attemptToWrap3d(final Point currentPoint, final int direction,
-      final int edgeLength) {
-
-    // There may be a good dynamic way to do this.  I gave up trying.  Hard-code ALL the edges!!
-
-    Pair<Point, Integer> attempt;
-    int x;
-    int y;
-    int offset;
-    switch (direction) {
-      case 0 -> {
-        x = currentPoint.x / edgeLength;
-        y = (currentPoint.y - 1) / edgeLength;
-        offset = ((currentPoint.y - 1) % edgeLength) + 1;
-        if (x == 1 && y == 3) {
-          attempt = Pair.of(new Point((edgeLength) + offset, (edgeLength * 3)), 3);
-        } else if (x == 2 && y == 2) {
-          attempt = Pair.of(new Point((edgeLength * 3), (edgeLength - offset) + 1), 2);
-        } else if (x == 2 && y == 1) {
-          attempt = Pair.of(new Point((edgeLength * 2) + offset, edgeLength), 3);
-        } else if (x == 3 && y == 0) {
-          attempt = Pair.of(new Point((edgeLength * 2), ((edgeLength * 3) - offset) + 1),
-              2);
-        } else {
-          throw new UnsupportedOperationException();
-        }
-      }
-      case 1 -> {
-        x = (currentPoint.x - 1) / edgeLength;
-        y = currentPoint.y / edgeLength;
-        offset = ((currentPoint.x - 1) % edgeLength) + 1;
-        if (x == 0 && y == 4) {
-          attempt = Pair.of(new Point((2 * edgeLength) + offset, 1), 1);
-        } else if (x == 1 && y == 3) {
-          attempt = Pair.of(new Point(edgeLength, (3 * edgeLength) + offset), 2);
-        } else if (x == 2 && y == 1) {
-          attempt = Pair.of(new Point(2 * edgeLength, edgeLength + offset), 2);
-        } else {
-          throw new UnsupportedOperationException();
-        }
-      }
-      case 2 -> {
-        x = (currentPoint.x - 1) / edgeLength;
-        y = (currentPoint.y - 1) / edgeLength;
-        offset = ((currentPoint.y - 1) % edgeLength) + 1;
-        if (x == 0 && y == 3) {
-          attempt = Pair.of(new Point((edgeLength + offset), 1), 1);
-        } else if (x == 0 && y == 2) {
-          attempt = Pair.of(new Point((edgeLength + 1), (edgeLength - offset) + 1), 0);
-        } else if (x == 1 && y == 1) {
-          attempt = Pair.of(new Point(offset, (2 * edgeLength) + 1), 1);
-        } else if (x == 1 && y == 0) {
-          attempt = Pair.of(new Point(1, ((3 * edgeLength) - offset) + 1), 0);
-        } else {
-          throw new UnsupportedOperationException();
-        }
-      }
-      case 3 -> {
-        x = (currentPoint.x - 1) / edgeLength;
-        y = (currentPoint.y - 1) / edgeLength;
-        offset = ((currentPoint.x - 1) % edgeLength) + 1;
-        if (x == 0 && y == 2) {
-          attempt = Pair.of(new Point(edgeLength + 1, edgeLength + offset), 0);
-        } else if (x == 1 && y == 0) {
-          attempt = Pair.of(new Point(1, (3 * edgeLength) + offset), 0);
-        } else if (x == 2 && y == 0) {
-          attempt = Pair.of(new Point(offset, 4 * edgeLength), 3);
-        } else {
-          throw new UnsupportedOperationException();
-        }
-      }
-      default -> throw new UnsupportedOperationException();
-    }
-    var character = map.get(attempt.getLeft());
-    if (character == '.') {
-      return attempt;
-    } else if (character == '#') {
-      throw new IllegalArgumentException();
-    }
-    throw new UnsupportedOperationException();
-  }
-
   private Point attemptToWrap(final Point currentPoint, final int direction) {
     var testPoint = switch (direction) {
       case 0 -> new Point(
@@ -243,7 +322,7 @@ public class Day22 {
   }
 
   private int turn(final int direction, final char next) {
-    if ('R' == next) {
+    if (RIGHT == next) {
       return (direction + 1) % 4;
     }
     return (direction + 3) % 4;
