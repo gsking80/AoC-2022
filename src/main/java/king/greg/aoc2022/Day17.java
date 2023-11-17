@@ -12,7 +12,7 @@ import java.util.Set;
 
 public class Day17 {
 
-  final static List<Rock> rockShapes;
+  static final List<Rock> rockShapes;
 
   static {
     rockShapes = List.of(
@@ -175,6 +175,15 @@ public class Day17 {
       int result = Objects.hash(jetIndex, rockIndex);
       result = 31 * result + Arrays.hashCode(topShape);
       return result;
+    }
+
+    @Override
+    public String toString() {
+      return "Key{" +
+          "jetIndex=" + jetIndex +
+          ", rockIndex=" + rockIndex +
+          ", topShape=" + Arrays.toString(topShape) +
+          '}';
     }
   }
 

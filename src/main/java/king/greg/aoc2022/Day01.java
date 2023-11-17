@@ -1,6 +1,5 @@
 package king.greg.aoc2022;
 
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;

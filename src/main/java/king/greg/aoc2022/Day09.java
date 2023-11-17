@@ -17,7 +17,7 @@ public class Day09 {
   public long tailPositions(final int knots) {
     final var rope = new Rope(knots);
     for (final var step : steps) {
-      String[] parts = step.split("\s+");
+      String[] parts = step.split(" +");
       rope.move(parts[0], Integer.parseInt(parts[1]));
     }
     return rope.totalTailLocations();

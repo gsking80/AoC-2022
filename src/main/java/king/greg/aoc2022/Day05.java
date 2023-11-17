@@ -18,7 +18,7 @@ public class Day05 {
       var currentLine = lines.get(i);
       if (searching && currentLine.isBlank()) {
         searching = false;
-        String[] countStrings = lines.get(i - 1).split("\s+");
+        String[] countStrings = lines.get(i - 1).split(" +");
         buildCrates(lines.subList(0, i - 1),
             Integer.parseInt(countStrings[countStrings.length - 1]));
       } else if (!searching) {
@@ -47,7 +47,7 @@ public class Day05 {
 
   public String topCrates9000() {
     for (String instruction : instructions) {
-      String[] pieces = instruction.split("\s+");
+      String[] pieces = instruction.split(" +");
       var amount = Integer.parseInt(pieces[1]);
       var source = Integer.parseInt(pieces[3]) - 1;
       var target = Integer.parseInt(pieces[5]) - 1;
@@ -64,7 +64,7 @@ public class Day05 {
 
   public String topCrates9001() {
     for (String instruction : instructions) {
-      String[] pieces = instruction.split("\s+");
+      String[] pieces = instruction.split(" +");
       var amount = Integer.parseInt(pieces[1]);
       var source = Integer.parseInt(pieces[3]) - 1;
       var target = Integer.parseInt(pieces[5]) - 1;

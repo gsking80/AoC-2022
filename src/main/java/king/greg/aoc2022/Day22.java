@@ -174,7 +174,6 @@ public class Day22 {
     return Pair.of(nextStep.getLeft(), turn(nextStep.getRight(), leftFirst ? RIGHT : LEFT));
   }
 
-
   private Pair<Point, Integer> move3d(final Point position, final int direction, final int distance,
       final boolean ignoreWalls) {
     var nextPoint = new Point(position);

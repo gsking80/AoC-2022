@@ -53,15 +53,21 @@ public class Day21 {
       final var leftAnswer = monkeyMap.get(left).getAnswer();
       final var rightAnswer = monkeyMap.get(right).getAnswer();
       switch (operation) {
-        case "+":
+        case "+" -> {
           return leftAnswer + rightAnswer;
-        case "-":
+        }
+        case "-" -> {
           return leftAnswer - rightAnswer;
-        case "*":
+        }
+        case "*" -> {
           return leftAnswer * rightAnswer;
-        case "/":
+        }
+        case "/" -> {
           return leftAnswer / rightAnswer;
-        default:
+        }
+        default -> {
+          // Do nothing
+        }
       }
       throw new UnsupportedOperationException("Unsupported");
     }
@@ -93,27 +99,39 @@ public class Day21 {
       var rightMonkey = monkeyMap.get(right);
       if (leftMonkey.containsHuman()) {
         switch (operation) {
-          case "+":
+          case "+" -> {
             return leftMonkey.solve(answer - rightMonkey.getAnswer());
-          case "-":
+          }
+          case "-" -> {
             return leftMonkey.solve(answer + rightMonkey.getAnswer());
-          case "*":
+          }
+          case "*" -> {
             return leftMonkey.solve(answer / rightMonkey.getAnswer());
-          case "/":
+          }
+          case "/" -> {
             return leftMonkey.solve(answer * rightMonkey.getAnswer());
-          default:
+          }
+          default -> {
+            // Do nothing
+          }
         }
       } else {
         switch (operation) {
-          case "+":
+          case "+" -> {
             return rightMonkey.solve(answer - leftMonkey.getAnswer());
-          case "-":
+          }
+          case "-" -> {
             return rightMonkey.solve(leftMonkey.getAnswer() - answer);
-          case "*":
+          }
+          case "*" -> {
             return rightMonkey.solve(answer / leftMonkey.getAnswer());
-          case "/":
+          }
+          case "/" -> {
             return rightMonkey.solve(leftMonkey.getAnswer() / answer);
-          default:
+          }
+          default -> {
+            // Do nothing
+          }
         }
       }
       throw new UnsupportedOperationException("Unsupported");

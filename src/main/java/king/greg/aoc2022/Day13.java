@@ -66,10 +66,8 @@ public class Day13 {
       var right = 0;
       while (right < input.length()) {
         switch (input.charAt(right)) {
-          case '[':
-            depth++;
-            break;
-          case ']':
+          case '[' -> depth++;
+          case ']' -> {
             depth--;
             if (depth == 0) {
               if (right == left + 1) {
@@ -80,14 +78,16 @@ public class Day13 {
               left = right + 2;
               right = left - 1;
             }
-            break;
-          case ',':
+          }
+          case ',' -> {
             if (depth == 0) {
               packets.add(new Packet(Integer.valueOf(input.substring(left, right))));
               left = right + 1;
             }
-            break;
-          default:
+          }
+          default -> {
+            // Do nothing
+          }
         }
         right++;
       }

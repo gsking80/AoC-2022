@@ -15,6 +15,7 @@ import org.apache.commons.lang3.tuple.Pair;
 public class Day16 {
 
   private final Map<String, Valve> valves;
+  private final Map<Pair<Integer, State2>, Integer> memo = new HashMap<>();
 
   public Day16(final List<String> inputs) {
     var pattern = Pattern.compile(
@@ -67,8 +68,6 @@ public class Day16 {
     return max;
   }
 
-  private final Map<Pair<Integer, State2>, Integer> memo = new HashMap<>();
-
   private int bestChoice(final int minutesRemaining, final State2 currentState) {
     var max = memo.get(Pair.of(minutesRemaining, currentState));
     if (null != max) {
@@ -96,6 +95,13 @@ public class Day16 {
     private final Set<String> valvesToOpen;
     private final Set<String> openValves;
 
+    public State2(final String location, final Set<String> valvesToOpen,
+        final Set<String> openValves) {
+      this.location = location;
+      this.valvesToOpen = valvesToOpen;
+      this.openValves = openValves;
+    }
+
     @Override
     public boolean equals(Object o) {
       if (this == o) {
@@ -112,13 +118,6 @@ public class Day16 {
     @Override
     public int hashCode() {
       return Objects.hash(location, valvesToOpen, openValves);
-    }
-
-    public State2(final String location, final Set<String> valvesToOpen,
-        final Set<String> openValves) {
-      this.location = location;
-      this.valvesToOpen = valvesToOpen;
-      this.openValves = openValves;
     }
 
     public Map<State2, Integer> getNexts() {

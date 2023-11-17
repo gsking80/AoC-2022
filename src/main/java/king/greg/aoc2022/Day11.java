@@ -22,7 +22,7 @@ public class Day11 {
       final var falseDest = Integer.parseInt(input.get(i + 5).substring(30));
       final var monkey = new Monkey(operationSymbol, operationValue, divisor, trueDest,
           falseDest);
-      final String[] itemParts = input.get(i + 1).substring(18).split(",\s+");
+      final String[] itemParts = input.get(i + 1).substring(18).split(", +");
       for (final String itemPart : itemParts) {
         monkey.catchItem(Long.parseLong(itemPart));
       }

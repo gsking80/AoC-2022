@@ -15,16 +15,15 @@ public class Day07 {
     for (final String console : lines) {
       String[] pieces = console.split("\s+");
       switch (pieces[0]) {
-        case "$": // command to execute
+        case "$" -> { // command to execute
           if ("cd".equals(pieces[1])) {
             currentDirectory = currentDirectory.changeDirectory(pieces[2]);
           }
-          break;
-        case "dir": //directory to add
-          currentDirectory.addSubdirectory(pieces[1]);
-          break;
-        default: // file to add
-          currentDirectory.addFile(pieces[1], Long.parseLong(pieces[0]));
+        }
+        case "dir" -> //directory to add
+            currentDirectory.addSubdirectory(pieces[1]);
+        default -> // file to add
+            currentDirectory.addFile(pieces[1], Long.parseLong(pieces[0]));
       }
     }
   }

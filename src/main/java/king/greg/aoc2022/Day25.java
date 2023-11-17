@@ -21,6 +21,9 @@ public class Day25 {
           case '2' -> decimalValue += 2;
           case '-' -> decimalValue -= 1;
           case '=' -> decimalValue -= 2;
+          default -> {
+            // Do nothing
+          }
         }
       }
       sum += decimalValue;

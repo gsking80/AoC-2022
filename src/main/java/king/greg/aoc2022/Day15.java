@@ -62,7 +62,6 @@ public class Day15 {
     return reducedRanges;
   }
 
-
   public long beaconFrequency(final long upperBound) {
     final var initialArea = new SearchArea(0, 0, upperBound, upperBound);
     Queue<SearchArea> priorityQueue = initQueue();
@@ -111,7 +110,6 @@ public class Day15 {
       var nearestBeaconY = coordinates.get(3);
       range = Math.abs(x - nearestBeaconX) + Math.abs(y - nearestBeaconY);
     }
-
 
     public Pair<Long, Long> emptyRange(final long row) {
       if (y - range <= row && y + range >= row) {

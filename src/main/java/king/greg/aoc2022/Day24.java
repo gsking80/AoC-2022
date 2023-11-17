@@ -47,6 +47,9 @@ public class Day24 {
           case 'v' -> downs[x][y] = true;
           case '<' -> lefts[x][y] = true;
           case '>' -> rights[x][y] = true;
+          default -> {
+            // Do nothing
+          }
         }
       }
     }
